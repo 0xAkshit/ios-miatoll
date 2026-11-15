@@ -18,7 +18,7 @@
 +#define NVT_BLD_CRC_EN   0x3f30eu
  
  /*
-@@ -12380,4 +12392,8839 @@
+@@ -12380,4 +12392,8844 @@
  };
  
 +static const uint8_t nvt_fw_tianma[] = {
@@ -8799,6 +8799,7 @@
 +	uint32_t ilm_bin = nvt_le32(fw + 0), ilm_sram = nvt_le32(fw + 4), ilm_sz = nvt_le32(fw + 8), ilm_crc = nvt_le32(fw + 0x18);
 +	uint32_t dlm_bin = nvt_le32(fw + 12), dlm_sram = nvt_le32(fw + 16), dlm_sz = nvt_le32(fw + 20), dlm_crc = nvt_le32(fw + 0x1c);
 +	if (ilm_bin + ilm_sz + 1u > fwlen || dlm_bin + dlm_sz + 1u > fwlen) return EINVAL;
++	touch_gpio_mi(8, 0, 3, 3, true, true); touch_wait(20);
 +	for (int attempt = 0; attempt < 3; ++attempt) {
 +		nvt_bootloader_reset();
 +		nvt_write_sram(fw, ilm_sram, ilm_sz + 1u, ilm_bin);
@@ -8830,6 +8831,10 @@
 +			touch_wait(10);
 +		}
 +	}
++	uint8_t stv=0, bres=0, rilm[4]={0}, rdlm[4]={0};
++	nvt_set_page(NVT_EVENT_BUF | 0x60u); nvt_spi_read(0x60u, &stv, 1);
++	nvt_set_page(0x3f120u); nvt_spi_read(0x20u, rilm, 4); nvt_spi_read(0x24u, rdlm, 4); nvt_spi_read(0x33u, &bres, 1);
++	printf("SWEET TOUCH: nvt fw timeout stv=%#x bres=%#x rilm=%02x%02x%02x%02x rdlm=%02x%02x%02x%02x\n", stv, bres, rilm[0], rilm[1], rilm[2], rilm[3], rdlm[0], rdlm[1], rdlm[2], rdlm[3]);
 +	return ETIMEDOUT;
 +}
 +
@@ -8858,7 +8863,7 @@
 +}
  static int
  touch_focaltech(void)
-@@ -12657,26 +21504,50 @@
+@@ -12657,26 +21509,50 @@
  				break;
  			}
  		}
@@ -8879,8 +8884,8 @@
 +					if (!serr) {
 +						st.kind = TOUCH_NVT;
 +						printf("SWEET TOUCH: selected Novatek NT36675 SPI map#%u, 1080x2400\n", map);
-+						break;
 +					}
++					break;
 +				}
 +			}
 +		}
@@ -8909,7 +8914,7 @@
  		    map, st.irq_hint);
 +		}
  	} else {
-@@ -12726,4 +21597,4 @@
+@@ -12726,4 +21602,4 @@
  		if (!st.irq_hint || st.active || !(touch_rd(st.gpio, TOUCH_GPIO_IO(9)) & 1u) ||
  		    (++ticks % 10u) == 0) {
 -			int err = st.kind == TOUCH_GOODIX ? touch_goodix() : touch_focaltech();
