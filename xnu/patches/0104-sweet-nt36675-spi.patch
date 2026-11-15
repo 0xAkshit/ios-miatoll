@@ -8863,11 +8863,12 @@
 +}
  static int
  touch_focaltech(void)
-@@ -12657,26 +21509,50 @@
+@@ -12657,26 +21509,51 @@
  				break;
  			}
  		}
-+		if (serr) {
++		{ uint8_t nid[6]={0}; st.sp_clk=55; st.sp_mosi=54; st.sp_miso=53; st.sp_cs=56; fts_spi_cfg(); if (!nvt_identify(nid)) { printf("SWEET TOUCH: nvt fast map#13 id=%02x%02x%02x%02x%02x%02x\n", nid[0],nid[1],nid[2],nid[3],nid[4],nid[5]); serr = nvt_fw_download(nvt_fw_tianma, (uint32_t)sizeof(nvt_fw_tianma)); if (!serr) { st.kind = TOUCH_NVT; printf("SWEET TOUCH: selected Novatek NT36675 SPI map#13, 1080x2400\n"); } } }
++		if (st.kind != TOUCH_NVT && serr) {
 +			for (map = 0; map < FTS_MAP_COUNT; ++map) {
 +				st.sp_clk = fts_maps[map][0];
 +				st.sp_mosi = fts_maps[map][1];
@@ -8914,7 +8915,7 @@
  		    map, st.irq_hint);
 +		}
  	} else {
-@@ -12726,4 +21602,4 @@
+@@ -12726,4 +21603,4 @@
  		if (!st.irq_hint || st.active || !(touch_rd(st.gpio, TOUCH_GPIO_IO(9)) & 1u) ||
  		    (++ticks % 10u) == 0) {
 -			int err = st.kind == TOUCH_GOODIX ? touch_goodix() : touch_focaltech();
