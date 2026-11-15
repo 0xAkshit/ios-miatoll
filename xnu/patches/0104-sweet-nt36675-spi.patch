@@ -8800,7 +8800,7 @@
 +	uint32_t dlm_bin = nvt_le32(fw + 12), dlm_sram = nvt_le32(fw + 16), dlm_sz = nvt_le32(fw + 20), dlm_crc = nvt_le32(fw + 0x1c);
 +	if (ilm_bin + ilm_sz + 1u > fwlen || dlm_bin + dlm_sz + 1u > fwlen) return EINVAL;
 +	touch_gpio_mi(8, 0, 3, 3, true, true); touch_wait(20);
-+	for (int attempt = 0; attempt < 3; ++attempt) {
++	for (int attempt = 0; attempt < 1; ++attempt) {
 +		nvt_bootloader_reset();
 +		nvt_write_addr(NVT_SWRST_N8, 0xaau); touch_wait(15);
 +		nvt_write_sram(fw, ilm_sram, ilm_sz + 1u, ilm_bin);
