@@ -1,6 +1,6 @@
 --- a/bsd/dev/sweet_touch.c
 +++ b/bsd/dev/sweet_touch.c
-@@ -37,3 +37,15 @@
+@@ -37,5 +37,17 @@
  #define TOUCH_MAX        10u
  #define TOUCH_GOODIX     1
  #define TOUCH_FTS        2
@@ -16,6 +16,8 @@
 +#define NVT_ILM_DES      0x3f128u
 +#define NVT_DLM_DES      0x3f12cu
 +#define NVT_BLD_CRC_EN   0x3f30eu
+ 
+ /*
 @@ -12380,4 +12392,8839 @@
  };
  
@@ -8856,7 +8858,7 @@
 +}
  static int
  touch_focaltech(void)
-@@ -12659,6 +21506,28 @@
+@@ -12657,26 +21504,50 @@
  				break;
  			}
  		}
@@ -8885,17 +8887,28 @@
  		if (serr) {
  			printf("SWEET TOUCH: no SPI mapping answered the boot id; stopping\n");
  			goto out;
-@@ -12664,5 +21533,6 @@
- 			printf("SWEET TOUCH: no SPI mapping answered the boot id; stopping\n");
- 			goto out;
  		}
 +		if (st.kind != TOUCH_NVT) {
  		uint8_t idh = 0, idl = 0, fwv = 0;
  		(void)fts_read_reg(FTS_REG_CHIP_ID, &idh);
-@@ -12688,3 +21558,4 @@
+ 		(void)fts_read_reg(FTS_REG_CHIP_ID2, &idl);
+ 		(void)fts_read_reg(FTS_REG_FW_VER, &fwv);
+ 		printf("SWEET TOUCH: fts pre-fw chip=%02x:%02x fwver=%02x\n", idh, idl, fwv);
+ 		serr = fts_fw_download(fts_fw_huaxing, (uint32_t)sizeof(fts_fw_huaxing));
+ 		idh = idl = 0;
+ 		(void)fts_read_reg(FTS_REG_CHIP_ID, &idh);
+ 		(void)fts_read_reg(FTS_REG_CHIP_ID2, &idl);
+ 		uint8_t chg = 0, chg2 = 0;
+ 		(void)fts_read_reg(FTS_REG_CHARGER, &chg);
+ 		(void)fts_write_reg(FTS_REG_CHARGER, 0);
+ 		(void)fts_read_reg(FTS_REG_CHARGER, &chg2);
+ 		printf("SWEET TOUCH: fts fw err=%d post chip=%02x:%02x charge=%02x->%02x\n",
+ 		    serr, idh, idl, chg, chg2);
+ 		st.kind = TOUCH_FTS;
  		printf("SWEET TOUCH: selected FocalTech FT8756 SPI map#%u, 1080x2400, poll=10ms irq-hint=%d\n",
  		    map, st.irq_hint);
 +		}
+ 	} else {
 @@ -12726,4 +21597,4 @@
  		if (!st.irq_hint || st.active || !(touch_rd(st.gpio, TOUCH_GPIO_IO(9)) & 1u) ||
  		    (++ticks % 10u) == 0) {
