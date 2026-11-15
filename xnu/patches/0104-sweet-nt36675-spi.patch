@@ -18,7 +18,7 @@
 +#define NVT_BLD_CRC_EN   0x3f30eu
  
  /*
-@@ -12380,4 +12392,8846 @@
+@@ -12380,4 +12392,8845 @@
  };
  
 +static const uint8_t nvt_fw_tianma[] = {
@@ -8802,7 +8802,6 @@
 +	touch_gpio_mi(8, 0, 3, 3, true, true); touch_wait(20);
 +	for (int attempt = 0; attempt < 1; ++attempt) {
 +		nvt_bootloader_reset();
-+		nvt_write_addr(NVT_SWRST_N8, 0xaau); touch_wait(15);
 +		nvt_write_sram(fw, ilm_sram, ilm_sz + 1u, ilm_bin);
 +		nvt_write_sram(fw, dlm_sram, dlm_sz + 1u, dlm_bin);
 +		{ uint8_t rb[8]={0}; nvt_set_page(dlm_sram); nvt_spi_read((uint8_t)(dlm_sram & 0x7fu), rb, 8); printf("SWEET TOUCH: dlm rb=%02x%02x%02x%02x exp=%02x%02x%02x%02x\n", rb[0],rb[1],rb[2],rb[3], fw[dlm_bin],fw[dlm_bin+1],fw[dlm_bin+2],fw[dlm_bin+3]); }
@@ -8865,7 +8864,7 @@
 +}
  static int
  touch_focaltech(void)
-@@ -12657,26 +21511,51 @@
+@@ -12657,26 +21510,51 @@
  				break;
  			}
  		}
@@ -8917,7 +8916,7 @@
  		    map, st.irq_hint);
 +		}
  	} else {
-@@ -12726,4 +21605,4 @@
+@@ -12726,4 +21604,4 @@
  		if (!st.irq_hint || st.active || !(touch_rd(st.gpio, TOUCH_GPIO_IO(9)) & 1u) ||
  		    (++ticks % 10u) == 0) {
 -			int err = st.kind == TOUCH_GOODIX ? touch_goodix() : touch_focaltech();
