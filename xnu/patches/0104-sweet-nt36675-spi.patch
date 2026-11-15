@@ -8817,7 +8817,7 @@
 +		nvt_spi_write(0x50u, &cmd, 1);
 +		nvt_write_addr(NVT_BOOT_RDY, 0x01u);
 +		touch_wait(5);
-+		for (int t = 0; t < 20; ++t) {
++		for (int t = 0; t < 50; ++t) {
 +			uint8_t stv = 0;
 +			nvt_set_page(NVT_EVENT_BUF | 0x60u);
 +			nvt_spi_read(0x60u, &stv, 1);
@@ -8835,7 +8835,7 @@
 +	nvt_set_page(NVT_EVENT_BUF | 0x60u); nvt_spi_read(0x60u, &stv, 1);
 +	nvt_set_page(0x3f120u); nvt_spi_read(0x20u, rilm, 4); nvt_spi_read(0x24u, rdlm, 4); nvt_spi_read(0x33u, &bres, 1);
 +	printf("SWEET TOUCH: nvt fw timeout stv=%#x bres=%#x rilm=%02x%02x%02x%02x rdlm=%02x%02x%02x%02x\n", stv, bres, rilm[0], rilm[1], rilm[2], rilm[3], rdlm[0], rdlm[1], rdlm[2], rdlm[3]);
-+	return ETIMEDOUT;
++	if (bres == 0x04u) { nvt_set_page(NVT_EVENT_BUF | 0x78u); uint8_t info[16]={0}; nvt_spi_read(0x78u, info, 16); printf("SWEET TOUCH: nvt force ok ver=%#x ~ver=%#x max=%ux%u\n", info[0], info[1], (unsigned)((info[4]<<8)|info[5]), (unsigned)((info[6]<<8)|info[7])); return 0; } return ETIMEDOUT;
 +}
 +
 +static int touch_nvt(void) {
